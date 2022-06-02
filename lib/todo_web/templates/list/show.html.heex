@@ -1,0 +1,38 @@
+<h1>Show List</h1>
+
+<ul>
+  <li>
+    <strong>Title:</strong>
+    <%= @list.title %>
+  </li>
+
+  <li>
+    <strong>Archived:</strong>
+    <%= @list.archived %>
+  </li>
+
+</ul>
+<span><%= link "Edit", to: Routes.list_path(@conn, :edit, @list) %></span> |
+<span><%= link "Back", to: Routes.list_path(@conn, :index) %></span>
+<%= render TodoWeb.ItemView, "new.html", 
+                                conn: @conn, 
+                                list: @list, 
+                                item_changeset: @item_changeset %>
+
+<h1>Show List's Items</h1>
+<%= for item <- @list.items do %>
+  <ul>
+    <li>
+      <strong>Content:</strong>
+      <%= item.content %>
+    </li>
+    <li>
+      <strong>Completed:</strong>
+      <%= item.completed %>
+    </li>
+    <td>
+        <span><%= link "Edit", to: Routes.list_item_path(@conn, :edit,  @list.id, item) %></span>
+        <span><%= link "Delete", to: Routes.list_item_path(@conn, :delete,  @list.id, item), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+  </ul>
+<% end %>
