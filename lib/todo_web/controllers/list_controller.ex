@@ -3,6 +3,8 @@ defmodule TodoWeb.ListController do
 
   alias Todo.Todos
   alias Todo.Todos.List
+  alias Todo.Item
+  alias Todo.Repo
 
   def index(conn, _params) do
     lists = Todos.list_lists()
@@ -27,8 +29,13 @@ defmodule TodoWeb.ListController do
   end
 
   def show(conn, %{"id" => id}) do
-    list = Todos.get_list!(id)
-    render(conn, "show.html", list: list)
+    list =
+      List
+      |> Repo.get(id)
+      |> Repo.preload(:items)
+
+    item_changeset = Item.changeset(%Item{}, %{})
+    render(conn, "show.html", list: list, item_changeset: item_changeset)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -40,14 +47,20 @@ defmodule TodoWeb.ListController do
   def update(conn, %{"id" => id, "list" => list_params}) do
     list = Todos.get_list!(id)
 
-    case Todos.update_list(list, list_params) do
-      {:ok, list} ->
-        conn
-        |> put_flash(:info, "List updated successfully.")
-        |> redirect(to: Routes.list_path(conn, :show, list))
+    if list.archived && String.to_atom(list_params["archived"]) do
+      conn
+      |> put_flash(:info, "You cannot update title of Archived list")
+      |> redirect(to: Routes.list_path(conn, :show, list))
+    else
+      case Todos.update_list(list, list_params) do
+        {:ok, list} ->
+          conn
+          |> put_flash(:info, "List updated successfully.")
+          |> redirect(to: Routes.list_path(conn, :show, list))
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", list: list, changeset: changeset)
+        {:error, %Ecto.Changeset{} = changeset} ->
+          render(conn, "edit.html", list: list, changeset: changeset)
+      end
     end
   end
 

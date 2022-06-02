@@ -6,6 +6,7 @@ defmodule Todo.Todos.List do
     field :archived, :boolean, default: false
     field :title, :string
 
+    has_many :items, Todo.Item
     timestamps()
   end
 
