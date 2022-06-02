@@ -15,7 +15,8 @@ defmodule Todo.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Todo.PubSub},
       # Start the Endpoint (http/https)
-      TodoWeb.Endpoint
+      TodoWeb.Endpoint,
+      Todo.Cleanup
       # Start a worker by calling: Todo.Worker.start_link(arg)
       # {Todo.Worker, arg}
     ]
